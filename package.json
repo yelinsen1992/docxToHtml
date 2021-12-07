@@ -1,0 +1,25 @@
+{
+  "name": "pdfseal",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint .",
+    "lintFix": "eslint . --fix"
+  },
+  "author": "vincent",
+  "license": "ISC",
+  "dependencies": {
+    "adm-zip": "^0.5.9",
+    "puppeteer": "^12.0.1"
+  },
+  "devDependencies": {
+    "eslint": "^7.8.1",
+    "eslint-config-standard": "^14.1.0",
+    "eslint-plugin-import": "^2.19.1",
+    "eslint-plugin-node": "^10.0.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1"
+  }
+}
