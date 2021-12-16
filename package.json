@@ -1,12 +1,16 @@
 {
   "name": "@yelinsen1992/docx-to-html",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "description": "docx文件转html/pdf",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint .",
     "lintFix": "eslint . --fix"
+  },
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/yelinsen1992/docxToHtml.git"
   },
   "keywords": ["docxtohtml", "docx", "pdf", "html"],
   "author": "vincent",
