@@ -49,9 +49,20 @@ const getStyle = (item) => {
   const fontFamily = item.match(/w:ascii="(.*?)"/gi) // 字体
   const marginTop = item.match(/w:spacing(.*?)w:before="(.*?)"(.*?)/)
   const marginBottom = item.match(/w:spacing(.*?)w:after="(.*?)"(.*?)/)
+  const mIND = item.match(/<w:ind(.*?)\/>/)
+  if (mIND) {
+    const marginLeft = mIND[0].match(/w:left="(.*?)"/)
+    const marginRight = mIND[0].match(/w:right="(.*?)"/)
+    const textIndentA = mIND[0].match(/w:firstLine="(.*?)"/)
+    const textIndentB = mIND[0].match(/w:hanging="(.*?)"/)
+    if (marginLeft) { obj.margin_left = marginLeft[1] / 20 + 'pt' }
+    if (marginRight) { obj.margin_right = marginRight[1] / 20 + 'pt' }
+    if (textIndentA) { obj.text_indent = textIndentA[1] / 20 + 'pt' }
+    if (textIndentB) { obj.text_indent = -textIndentB[1] / 20 + 'pt' }
+  }
   if (lineHeight) { obj.line_height = lineHeight[0].slice(8, -1) / 2.4 + '%' }
   if (textAlign) { obj.text_align = (textAlign[0].slice(12, -3) === 'distribut' || textAlign[0].slice(12, -3) === 'both' ? 'justify' : textAlign[0].slice(12, -3)) }
-  if (fontWeight) { obj.font_weight = 'bold' }
+  // if (fontWeight) { obj.font_weight = 'bold' }
   if (fontStyle) { obj.font_style = 'italic' }
   if (fontSize) { obj.font_size = fontSize[0].slice(13, -3) / 2 + 'pt' }
   if (fontColor && fontColor[0].slice(16, -1) !== 'auto') { obj.color = '#' + fontColor[0].slice(16, -1) }
@@ -145,6 +156,7 @@ const toHTML = async (docxBuf, name) => {
         const wpObj = {}
         const mWPPR = wpItem.match(/<w:pPr>(.*?)<\/w:pPr>/gi)[0] // match匹配每个段落段落样式内容块
         const mWR = wpItem.match(/<w:r>(.*?)<\/w:r>/gi) // match匹配每个段落中每个文本样式串块
+        const mWNUMPR = wpItem.match(/<w:numPr>(.*?)<\/w:numPr>/)
         const styleJson = getStyle(mWPPR)
         const styleText = JSON.stringify(styleJson) === '{}' ? '' : 'style="' + setStyle(styleJson) + '"'
         let label = 'p'
@@ -166,6 +178,9 @@ const toHTML = async (docxBuf, name) => {
             if (mWT) {
               wrObj.text = mWT[0].indexOf('xml:space') === -1 ? mWT[0].slice(5, -6) : mWT[0].slice(26, -6)
               wrObj.styleText = styleJson
+              if (mWNUMPR) {
+                html += '<span ' + styleText + '>•<span>&nbsp;</span></span>'
+              }
               html += '<span ' + styleText + '>' + wrObj.text + '</span>'
             }
             if (mPIC) {
@@ -173,14 +188,12 @@ const toHTML = async (docxBuf, name) => {
               const picSize = mPIC[0].match(/<a:ext cx="(.*?)" cy="(.*?)"\/>/)
               const width = picSize[1] / 1440 / 7 + 'pt'
               const height = picSize[2] / 1440 / 7 + 'pt'
-              const title = mPIC[0].match(/<pic:cNvPr(.*?)descr="(.*?)"\/>/)
               const rId = mPIC[0].match(/<a:blip r:embed="(.*?)"\/>/)[1]
               const obj = {}
               if (width) { obj.width = width }
               if (height) { obj.height = height }
-              if (title) { obj.title = title[2] }
               if (rId) { obj.src = picObj[rId] }
-              html += '<span ' + styleText + '><img width="' + width + '" height="' + height + '" title="' + (title || '') + '" src="' + picObj[rId] + '"></span>'
+              html += '<span ' + styleText + '><img width="' + width + '" height="' + height + '" src="' + picObj[rId] + '"></span>'
             }
             wpObj.wr.push(wrObj)
           })
@@ -213,8 +226,10 @@ const toHTML = async (docxBuf, name) => {
 const toPDF = async (docxBuf, name) => {
   const html = await toHTML(docxBuf, name)
   const tmpName = getTime()
-  const htmlTmp = path.join(outDir, tmpName + '.html')
-  const pdfTmp = path.join(outDir, tmpName + '.pdf')
+  // const htmlTmp = path.join(outDir, tmpName + '.html')
+  // const pdfTmp = path.join(outDir, tmpName + '.pdf')
+  const htmlTmp = path.join(outDir, 'tmp.html')
+  const pdfTmp = path.join(outDir, 'tmp.pdf')
   await writeFile(htmlTmp, html)
   const browser = await puppeteer.launch()
   const page = await browser.newPage()
@@ -231,8 +246,8 @@ const toPDF = async (docxBuf, name) => {
   })
   await browser.close()
   const pdfBuf = await readFile(pdfTmp)
-  await unLink(htmlTmp)
-  await unLink(pdfTmp)
+  // await unLink(htmlTmp)
+  // await unLink(pdfTmp)
   return pdfBuf
 }
 module.exports = {

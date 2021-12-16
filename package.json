@@ -1,13 +1,14 @@
 {
-  "name": "pdfseal",
+  "name": "@yelinsen1992/docx-to-html",
   "version": "1.0.0",
-  "description": "",
+  "description": "docx文件转html/pdf",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint .",
     "lintFix": "eslint . --fix"
   },
+  "keywords": ["docxtohtml", "docx", "pdf", "html"],
   "author": "vincent",
   "license": "ISC",
   "dependencies": {
